@@ -18,7 +18,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const app = express();
 
 // Middleware
-app.use(cors({ origin: ["http://localhost:5173", "https://resumatch-ai-cyan.vercel.app"], credentials: true }));
+app.use(cors({ origin: ["http://localhost:5173", "https://resumatchai.dev"], credentials: true }));
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 

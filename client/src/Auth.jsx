@@ -41,7 +41,7 @@ function Auth() {
     e.preventDefault();
     setError('');
     setMessage('Sending code...');
-    const url = isLogin ? 'http://localhost:5000/api/auth/login' : 'http://localhost:5000/api/auth/register';
+    const url = isLogin ? '${import.meta.env.VITE_API_URL}/api/auth/login' : '${import.meta.env.VITE_API_URL}/api/auth/register';
     try {
       await axios.post(url, { email: formData.email, password: formData.password });
       setMessage('A 6-digit code has been sent to your email!');
@@ -56,7 +56,7 @@ function Auth() {
     e.preventDefault();
     setError('');
     setMessage('Verifying...');
-    const url = isLogin ? 'http://localhost:5000/api/auth/verify-login' : 'http://localhost:5000/api/auth/verify-register';
+    const url = isLogin ? '${import.meta.env.VITE_API_URL}/api/auth/verify-login' : '${import.meta.env.VITE_API_URL}/api/auth/verify-register';
     try {
       const res = await axios.post(url, formData);
       if (isLogin) {
@@ -83,7 +83,7 @@ function Auth() {
 
   const handleResendOTP = async () => {
     try {
-        await axios.post('http://localhost:5000/api/auth/resend-otp', { email: formData.email });
+        await axios.post('${import.meta.env.VITE_API_URL}/api/auth/resend-otp', { email: formData.email });
         setMessage("A new OTP has been sent!");
         setResendTimer(30); 
     } catch (err) {
@@ -96,7 +96,7 @@ function Auth() {
     setError('');
     setMessage('Sending reset link...');
     try {
-        await axios.post('http://localhost:5000/api/auth/forgot-password', { email: formData.email });
+        await axios.post('${import.meta.env.VITE_API_URL}/api/auth/forgot-password', { email: formData.email });
         setMessage("OTP sent! Check your email.");
         setStep(2); 
         setResendTimer(30); 
@@ -110,7 +110,7 @@ function Auth() {
     e.preventDefault();
     setError('');
     try {
-        await axios.post('http://localhost:5000/api/auth/reset-password', { 
+        await axios.post('${import.meta.env.VITE_API_URL}/api/auth/reset-password', { 
             email: formData.email, 
             otp: formData.otp, 
             newPassword 

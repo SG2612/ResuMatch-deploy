@@ -25,7 +25,7 @@ const UpgradePro = ({ userEmail, userName }) => {
 
         try {
             // 2. Ask backend to create an order
-            const result = await axios.post('http://localhost:5000/api/payment/create-order');
+            const result = await axios.post('${import.meta.env.VITE_API_URL}/api/payment/create-order');
             const { amount, id: order_id, currency } = result.data;
 
             // 3. Set up Razorpay options
@@ -47,7 +47,7 @@ const UpgradePro = ({ userEmail, userName }) => {
                     };
 
                     // Send payment details to backend for secure verification
-                    const verifyResult = await axios.post('http://localhost:5000/api/payment/verify', data);
+                    const verifyResult = await axios.post('${import.meta.env.VITE_API_URL}/api/payment/verify', data);
                     
                     if (verifyResult.status === 200) {
                         alert("Payment Successful! You are now a Pro user 🚀");

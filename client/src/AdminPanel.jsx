@@ -180,10 +180,10 @@ function AdminPanel() {
       
       // We added the Jobs API call here, with a catch so it doesn't break if the route isn't built yet
       const [statsRes, usersRes, analysesRes, jobsRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/admin/stats',    { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('http://localhost:5000/api/admin/users',    { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('http://localhost:5000/api/admin/analyses', { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('http://localhost:5000/api/admin/jobs',     { headers: { Authorization: `Bearer ${token}` } }) 
+        axios.get('${import.meta.env.VITE_API_URL}/api/admin/stats',    { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get('${import.meta.env.VITE_API_URL}/api/admin/users',    { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get('${import.meta.env.VITE_API_URL}/api/admin/analyses', { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get('${import.meta.env.VITE_API_URL}/api/admin/jobs',     { headers: { Authorization: `Bearer ${token}` } }) 
         // ^^^ I removed the .catch() fallback line here!
       ]);
       
@@ -204,7 +204,7 @@ function AdminPanel() {
   const handleAddUser = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/admin/users', newUser, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post('${import.meta.env.VITE_API_URL}/api/admin/users', newUser, { headers: { Authorization: `Bearer ${token}` } });
       alert('User Created!');
       setNewUser({ name: '', email: '', password: '', role: 'user' });
       setShowAddForm(false);
@@ -215,7 +215,7 @@ function AdminPanel() {
   const handleDeleteUser = async (id, name) => {
     if (!window.confirm(`Delete ${name} and ALL their data?`)) return;
     try {
-      await axios.delete(`http://localhost:5000/api/admin/users/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/admin/users/${id}`, { headers: { Authorization: `Bearer ${token}` } });
       fetchAdminData();
     } catch (err) { alert(err.response?.data?.error || 'Failed to delete user'); }
   };
@@ -223,14 +223,14 @@ function AdminPanel() {
   const handleDeleteJob = async (id, title) => {
     if (!window.confirm(`Delete job posting: ${title}?`)) return;
     try {
-      await axios.delete(`http://localhost:5000/api/admin/jobs/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/admin/jobs/${id}`, { headers: { Authorization: `Bearer ${token}` } });
       fetchAdminData();
     } catch (err) { alert(err.response?.data?.error || 'Failed to delete job'); }
   };
 
   const handleViewUser = async (id) => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/admin/users/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/users/${id}`, { headers: { Authorization: `Bearer ${token}` } });
       setSelectedUser(res.data.user);
       setSelectedUserHistory(res.data.history);
       setViewState('userDetails');

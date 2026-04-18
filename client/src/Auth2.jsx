@@ -41,7 +41,7 @@ const [resendTimer, setResendTimer] = useState(0);
 }, [resendTimer]);
   const handleResendOTP = async () => {
     try {
-        await axios.post('http://localhost:5000/api/auth/resend-otp', { email });
+        await axios.post('${import.meta.env.VITE_API_URL}/api/auth/resend-otp', { email });
         alert("A new OTP has been sent!");
         setResendTimer(30); // 30-second cooldown so Nodemailer doesn't get blocked!
     } catch (err) {
@@ -52,7 +52,7 @@ const [resendTimer, setResendTimer] = useState(0);
 const handleForgotPassword = async (e) => {
     e.preventDefault();
     try {
-        await axios.post('http://localhost:5000/api/auth/forgot-password', { email });
+        await axios.post('${import.meta.env.VITE_API_URL}/api/auth/forgot-password', { email });
         setStep(2); // Move them to the OTP input screen
         setResendTimer(30); // Start the resend timer
     } catch (err) {
@@ -63,7 +63,7 @@ const handleForgotPassword = async (e) => {
 const handleResetPassword = async (e) => {
     e.preventDefault();
     try {
-        await axios.post('http://localhost:5000/api/auth/reset-password', { 
+        await axios.post('${import.meta.env.VITE_API_URL}/api/auth/reset-password', { 
             email, otp, newPassword 
         });
         alert("Password reset successfully! Please log in.");
@@ -80,7 +80,7 @@ const handleResetPassword = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('Sending code...');
-    const url = isLogin ? 'http://localhost:5000/api/auth/login' : 'http://localhost:5000/api/auth/register';
+    const url = isLogin ? '${import.meta.env.VITE_API_URL}/api/auth/login' : '${import.meta.env.VITE_API_URL}/api/auth/register';
     try {
       await axios.post(url, { email: formData.email, password: formData.password });
       setMessage('A 6-digit code has been sent to your email!');
@@ -95,7 +95,7 @@ const handleResetPassword = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('Verifying...');
-    const url = isLogin ? 'http://localhost:5000/api/auth/verify-login' : 'http://localhost:5000/api/auth/verify-register';
+    const url = isLogin ? '${import.meta.env.VITE_API_URL}/api/auth/verify-login' : '${import.meta.env.VITE_API_URL}/api/auth/verify-register';
     try {
       const res = await axios.post(url, formData);
       if (isLogin) {
