@@ -75,10 +75,18 @@ function Auth() {
         setFormData({ ...formData, password: '', otp: '' });
         setMessage('');
       }
-    } catch (err) {
-      setMessage('');
-      setError(err.response?.data?.error || 'Invalid OTP code.');
+    }catch (error) {
+    if (error.response && error.response.data && error.response.data.message) {
+        // Safely extract just the string message
+        setError(error.response.data.message);
+    } else if (error.response && error.response.data && error.response.data.error) {
+        // Check for your custom 'error' key
+        setError(error.response.data.error);
+    } else {
+        // Fallback text if the server sends back something weird
+        setError("Network error: Could not reach the server.");
     }
+}
   };
 
   const handleResendOTP = async () => {
