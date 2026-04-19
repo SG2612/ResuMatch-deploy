@@ -180,10 +180,10 @@ function AdminPanel() {
       
       // We added the Jobs API call here, with a catch so it doesn't break if the route isn't built yet
       const [statsRes, usersRes, analysesRes, jobsRes] = await Promise.all([
-        axios.get('${import.meta.env.VITE_API_URL}/api/admin/stats',    { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('${import.meta.env.VITE_API_URL}/api/admin/users',    { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('${import.meta.env.VITE_API_URL}/api/admin/analyses', { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('${import.meta.env.VITE_API_URL}/api/admin/jobs',     { headers: { Authorization: `Bearer ${token}` } }) 
+        axios.get(`${import.meta.env.VITE_API_URL}/api/admin/stats`,    { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${import.meta.env.VITE_API_URL}/api/admin/users`,    { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${import.meta.env.VITE_API_URL}/api/admin/analyses`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${import.meta.env.VITE_API_URL}/api/admin/jobs`,     { headers: { Authorization: `Bearer ${token}` } }) 
         // ^^^ I removed the .catch() fallback line here!
       ]);
       
