@@ -743,7 +743,7 @@ function Chatbot() {
     setIsTyping(true);
 
     try {
-      const res = await fetch('${import.meta.env.VITE_API_URL}/api/resume/chat', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/resume/chat`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -833,7 +833,7 @@ function AtsTab() {
     formData.append('desiredDomain', ''); // Empty, just doing an ATS scan
 
     try {
-      const res = await axios.post('${import.meta.env.VITE_API_URL}/api/resume/analyze', formData, {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/resume/analyze`, formData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       setResult(res.data.data);
@@ -954,7 +954,7 @@ function DiscoveryTab({ userName, setActiveTab }) {
     formData.append('desiredDomain', domainSnapshot);
 
     try {
-      const res = await axios.post('${import.meta.env.VITE_API_URL}/api/resume/analyze', formData, {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/resume/analyze`, formData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       const data = res.data.data;
@@ -1117,7 +1117,7 @@ function JobsTab() {
   const [applying, setApplying] = useState(false);
 
   useEffect(() => {
-    axios.get('${import.meta.env.VITE_API_URL}/api/jobs/matches', {
+    axios.get(`${import.meta.env.VITE_API_URL}/api/jobs/matches`, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
     }).then(res => setJobs(res.data.data)).finally(() => setLoading(false));
   }, []);
@@ -1133,7 +1133,7 @@ function JobsTab() {
     formData.append('recruiterId', selectedJob.recruiterId);
 
     try {
-      await axios.post('${import.meta.env.VITE_API_URL}/api/applications/apply', formData, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }});
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/applications/apply`, formData, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }});
       alert('Application submitted successfully!');
       setSelectedJob(null); setResumeFile(null);
     } catch (err) { alert('Failed to submit application.'); } finally { setApplying(false); }
@@ -1141,7 +1141,7 @@ function JobsTab() {
 
   const handleStartChat = async (job) => {
     try {
-      await axios.post('${import.meta.env.VITE_API_URL}/api/chat/send', { receiverId: job.recruiterId, text: `Hi! I am very interested in your ${job.title} position and would love to connect.` }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }});
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/chat/send`, { receiverId: job.recruiterId, text: `Hi! I am very interested in your ${job.title} position and would love to connect.` }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }});
       alert('Message sent! Go to your Messages tab to view the conversation.');
       setSelectedJob(null); 
     } catch (err) { alert("Failed to send message."); }
@@ -1251,7 +1251,7 @@ function HistoryTab({ searchQuery }) {
   const [history, setHistory] = useState([]);
 
   useEffect(() => {
-    axios.get('${import.meta.env.VITE_API_URL}/api/resume/history', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
+    axios.get(`${import.meta.env.VITE_API_URL}/api/resume/history`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
       .then(res => setHistory(res.data.data));
   }, []);
 
@@ -1397,7 +1397,7 @@ function RecruiterTab() {
 
   const fetchMyJobs = async () => {
     try {
-      const res = await axios.get('${import.meta.env.VITE_API_URL}/api/jobs/recruiter', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }});
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/jobs/recruiter`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }});
       setJobs(res.data.data);
       if (res.data.data.length === 0) setShowForm(true); 
     } catch (err) {} finally { setFetchingJobs(false); }
@@ -1425,7 +1425,7 @@ function RecruiterTab() {
       const config = { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } };
 
       if (editingId) await axios.put(`${import.meta.env.VITE_API_URL}/api/jobs/${editingId}`, payload, config);
-      else await axios.post('${import.meta.env.VITE_API_URL}/api/jobs/post', payload, config);
+      else await axios.post(`${import.meta.env.VITE_API_URL}/api/jobs/post`, payload, config);
       await fetchMyJobs(); setShowForm(false);  
     } catch (error) { alert('Failed to save job.'); } finally { setLoading(false); }
   };
@@ -1521,7 +1521,7 @@ function MessagesTab() {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    axios.get('${import.meta.env.VITE_API_URL}/api/chat/inbox', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
+    axios.get(`${import.meta.env.VITE_API_URL}/api/chat/inbox`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
       .then(res => setConversations(res.data.data));
   }, []);
 
@@ -1539,7 +1539,7 @@ function MessagesTab() {
   const handleSend = async (e) => {
     e.preventDefault(); if (!newMessage.trim() || !activeChat) return;
     try {
-      await axios.post('${import.meta.env.VITE_API_URL}/api/chat/send', { receiverId: activeChat._id, text: newMessage }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }});
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/chat/send`, { receiverId: activeChat._id, text: newMessage }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }});
       setNewMessage('');
       const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/chat/${activeChat._id}`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }});
       setMessages(res.data.data);
@@ -1608,7 +1608,7 @@ function InterviewTab() {
     formData.append('resume', file);
 
     try {
-      const res = await axios.post('${import.meta.env.VITE_API_URL}/api/resume/interview', formData, {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/resume/interview`, formData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       setQuestions(res.data.data);
