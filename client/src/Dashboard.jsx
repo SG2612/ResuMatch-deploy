@@ -556,15 +556,17 @@ const DASH_STYLES = `
 
   /* ── CHATBOT ── */
   .chat-fab {
-    position:fixed; bottom:28px; right:28px; z-index:9999;
-    width:58px; height:58px; border-radius:50%; border:none; cursor:pointer;
+    position:fixed; z-index:9999;
+    width:58px; height:58px; border-radius:50%; border:none; cursor:grab; /* changed to grab */
     background:linear-gradient(135deg,var(--blue-600),var(--indigo-500));
     color:#fff; display:flex; align-items:center; justify-content:center;
     box-shadow:0 4px 20px rgba(59,130,246,0.45), 0 0 0 0 rgba(59,130,246,0.3);
-    transition:all 0.3s cubic-bezier(.34,1.56,.64,1);
+    transition:box-shadow 0.3s, transform 0.1s; /* removed layout transitions for smooth drag */
     animation:glowPulse 3s ease-in-out infinite;
+    user-select: none; /* Prevents text highlighting while dragging */
   }
-  .chat-fab:hover { transform:scale(1.12) translateY(-2px); box-shadow:0 8px 28px rgba(59,130,246,0.55); }
+  .chat-fab:active { cursor: grabbing; transform: scale(0.95); } /* Feedback while dragging */
+  .chat-fab:hover { box-shadow:0 8px 28px rgba(59,130,246,0.55); }
   .chat-fab-badge {
     position:absolute; top:-4px; right:-4px;
     background:linear-gradient(135deg,var(--amber-400),#f97316);
@@ -573,8 +575,8 @@ const DASH_STYLES = `
     letter-spacing:0.06em; border:2px solid #fff;
     animation:badgePulse 2.5s ease-in-out infinite;
   }
-  .chat-window {
-    position:fixed; bottom:100px; right:28px; z-index:9998;
+.chat-window {
+    position:fixed; z-index:9998;
     width:360px; border-radius:20px; overflow:hidden;
     box-shadow:0 24px 64px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.1);
     display:flex; flex-direction:column;
@@ -1000,6 +1002,7 @@ function Dashboard() {
 }
 
 /* ─── CHATBOT ────────────────────────────────── */
+/* ─── CHATBOT ────────────────────────────────── */
 function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
@@ -1009,7 +1012,75 @@ function Chatbot() {
   const [isTyping, setIsTyping] = useState(false);
   const endRef = useRef(null);
 
+  // --- DRAG LOGIC STATE ---
+  const dragRef = useRef(null);
+  const isDraggingRef = useRef(false);
+  const [position, setPosition] = useState({
+    x: window.innerWidth - 86, // Default X (right padding)
+    y: window.innerHeight - 86 // Default Y (bottom padding)
+  });
+
+  // Keep button inside screen if user resizes browser
+  useEffect(() => {
+    const handleResize = () => {
+      setPosition(prev => ({
+        x: Math.min(prev.x, window.innerWidth - 60),
+        y: Math.min(prev.y, window.innerHeight - 60)
+      }));
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   useEffect(() => { if (isOpen) endRef.current?.scrollIntoView({ behavior:'smooth' }); }, [messages, isTyping, isOpen]);
+
+  // --- DRAG HANDLER ---
+  const handlePointerDown = (e) => {
+    if (e.button && e.button !== 0) return; // Only allow left-click drag
+
+    isDraggingRef.current = false;
+    const startX = e.clientX || (e.touches && e.touches[0].clientX);
+    const startY = e.clientY || (e.touches && e.touches[0].clientY);
+
+    const rect = dragRef.current.getBoundingClientRect();
+    const offsetX = startX - rect.left;
+    const offsetY = startY - rect.top;
+
+    const handlePointerMove = (moveEvent) => {
+      const currentX = moveEvent.clientX || (moveEvent.touches && moveEvent.touches[0].clientX);
+      const currentY = moveEvent.clientY || (moveEvent.touches && moveEvent.touches[0].clientY);
+
+      // If moved more than 5 pixels, consider it a drag, not a click
+      if (Math.abs(currentX - startX) > 5 || Math.abs(currentY - startY) > 5) {
+        isDraggingRef.current = true;
+        
+        // Calculate new position bounded to screen edges
+        const newX = Math.min(Math.max(0, currentX - offsetX), window.innerWidth - 58);
+        const newY = Math.min(Math.max(0, currentY - offsetY), window.innerHeight - 58);
+        
+        setPosition({ x: newX, y: newY });
+      }
+    };
+
+    const handlePointerUp = () => {
+      document.removeEventListener('mousemove', handlePointerMove);
+      document.removeEventListener('touchmove', handlePointerMove);
+      document.removeEventListener('mouseup', handlePointerUp);
+      document.removeEventListener('touchend', handlePointerUp);
+    };
+
+    document.addEventListener('mousemove', handlePointerMove);
+    document.addEventListener('touchmove', handlePointerMove, { passive: false });
+    document.addEventListener('mouseup', handlePointerUp);
+    document.addEventListener('touchend', handlePointerUp);
+  };
+
+  const toggleChat = () => {
+    // Only toggle if they didn't just drag the button
+    if (!isDraggingRef.current) {
+      setIsOpen(v => !v);
+    }
+  };
 
   const send = async () => {
     const text = input.trim();
@@ -1032,15 +1103,35 @@ function Chatbot() {
 
   const handleKey = e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send(); } };
 
+  // Calculate dynamic window position based on button location
+  const windowStyle = {
+    // If button is on the right half, pin window to the right of it. Else pin left.
+    ...(position.x > window.innerWidth / 2 
+        ? { right: window.innerWidth - position.x - 58, left: 'auto' } 
+        : { left: position.x, right: 'auto' }),
+    // If button is on bottom half, pop up. If top half, drop down.
+    ...(position.y > window.innerHeight / 2 
+        ? { bottom: window.innerHeight - position.y + 10, top: 'auto' } 
+        : { top: position.y + 70, bottom: 'auto' })
+  };
+
   return (
     <>
-      <button className="chat-fab" onClick={() => setIsOpen(v => !v)} title="Chat with AI">
+      <button 
+        ref={dragRef}
+        className="chat-fab" 
+        style={{ left: `${position.x}px`, top: `${position.y}px` }}
+        onMouseDown={handlePointerDown}
+        onTouchStart={handlePointerDown}
+        onClick={toggleChat}
+        title="Drag to move, click to chat"
+      >
         {isOpen ? <X size={22} /> : <MessageCircle size={22} />}
         {!isOpen && <span className="chat-fab-badge">AI</span>}
       </button>
 
       {isOpen && (
-        <div className="chat-window">
+        <div className="chat-window" style={windowStyle}>
           <div className="chat-header">
             <div className="chat-header-left">
               <div className="chat-header-avatar">✦</div>
