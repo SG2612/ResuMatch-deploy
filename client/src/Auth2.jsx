@@ -20,8 +20,8 @@ const [resendTimer, setResendTimer] = useState(0);
  // Inside client/src/Auth.jsx
   useEffect(() => {
     setMounted(true);
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('userRole'); // Read the role!
+    const token = sessionStorage.getItem('token');
+    const role = sessionStorage.getItem('userRole'); // Read the role!
     
     if (token) {
       // Direct them to the right place based on their role
@@ -99,15 +99,15 @@ const handleResetPassword = async (e) => {
     try {
       const res = await axios.post(url, formData);
       if (isLogin) {
-        localStorage.setItem('token', res.data.token);
+        sessionStorage.setItem('token', res.data.token);
         // Fallback for user name depending on exactly how your backend formats it
-        localStorage.setItem('userName', res.data.userName || res.data.user?.name);
+        sessionStorage.setItem('userName', res.data.userName || res.data.user?.name);
         // 2. SAVE THE ROLE TO LOCAL STORAGE!
-        localStorage.setItem('userRole', res.data.role || 'seeker'); 
-        localStorage.setItem('userEmail', res.data.email || res.data.user?.email);
+        sessionStorage.setItem('userRole', res.data.role || 'seeker'); 
+        sessionStorage.setItem('userEmail', res.data.email || res.data.user?.email);
         console.log("LOGIN RESPONSE:", res.data);//new
         const safeEmail = res.data.email || res.data.user?.email || "";//new
-        localStorage.setItem('userEmail', safeEmail);//new
+        sessionStorage.setItem('userEmail', safeEmail);//new
         navigate('/dashboard');
 
         if (role === 'admin') {

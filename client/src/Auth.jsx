@@ -18,8 +18,8 @@ function Auth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('userRole'); 
+    const token = sessionStorage.getItem('token');
+    const role = sessionStorage.getItem('userRole'); 
     
     if (token) {
       if (role === 'admin') navigate('/admin');
@@ -60,10 +60,10 @@ function Auth() {
     try {
       const res = await axios.post(url, formData);
       if (isLogin) {
-        localStorage.setItem('token', res.data.token);
-        localStorage.setItem('userName', res.data.userName || res.data.user?.name);
-        localStorage.setItem('userRole', res.data.role || 'seeker'); 
-        localStorage.setItem('userEmail', res.data.email || res.data.user?.email || "");
+        sessionStorage.setItem('token', res.data.token);
+        sessionStorage.setItem('userName', res.data.userName || res.data.user?.name);
+        sessionStorage.setItem('userRole', res.data.role || 'seeker'); 
+        sessionStorage.setItem('userEmail', res.data.email || res.data.user?.email || "");
         
         if (res.data.role === 'admin') navigate('/admin'); 
         else navigate('/dashboard');

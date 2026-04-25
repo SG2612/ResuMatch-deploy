@@ -838,15 +838,15 @@ function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isPro, setIsPro] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('theme') === 'dark');
+  const [isDarkMode, setIsDarkMode] = useState(() => sessionStorage.getItem('theme') === 'dark');
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const storedName  = localStorage.getItem('userName');
-    const storedRole  = localStorage.getItem('userRole') || 'seeker';
-    const storedEmail = localStorage.getItem('userEmail');
-    const storedIsPro = localStorage.getItem('isPro') === 'true';
+    const token = sessionStorage.getItem('token');
+    const storedName  = sessionStorage.getItem('userName');
+    const storedRole  = sessionStorage.getItem('userRole') || 'seeker';
+    const storedEmail = sessionStorage.getItem('userEmail');
+    const storedIsPro = sessionStorage.getItem('isPro') === 'true';
 
     if (!token) return navigate('/');
     if (storedRole === 'admin') return navigate('/admin');
@@ -859,13 +859,13 @@ function Dashboard() {
   }, [navigate, activeTab]);
 
   useEffect(() => {
-    if (isDarkMode) { document.body.classList.add('dark-mode'); localStorage.setItem('theme','dark'); }
-    else { document.body.classList.remove('dark-mode'); localStorage.setItem('theme','light'); }
+    if (isDarkMode) { document.body.classList.add('dark-mode'); sessionStorage.setItem('theme','dark'); }
+    else { document.body.classList.remove('dark-mode'); sessionStorage.setItem('theme','light'); }
   }, [isDarkMode]);
 
   useEffect(() => {
     let tid;
-    const logoutIdle = () => { alert('Signed out due to 15 min inactivity.'); localStorage.clear(); navigate('/'); };
+    const logoutIdle = () => { alert('Signed out due to 15 min inactivity.'); sessionStorage.clear(); navigate('/'); };
     const reset = () => { clearTimeout(tid); tid = setTimeout(logoutIdle, 15*60*1000); };
     const events = ['mousedown','mousemove','keypress','scroll','touchstart'];
     events.forEach(e => document.addEventListener(e, reset));
@@ -873,7 +873,7 @@ function Dashboard() {
     return () => { clearTimeout(tid); events.forEach(e => document.removeEventListener(e, reset)); };
   }, [navigate]);
 
-  const handleLogout = () => { localStorage.clear(); navigate('/'); };
+  const handleLogout = () => { sessionStorage.clear(); navigate('/'); };
 
   const navItems = userRole === 'recruiter'
     ? [
@@ -1019,7 +1019,7 @@ function Chatbot() {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/resume/chat`, {
         method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':`Bearer ${localStorage.getItem('token')}`},
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${sessionStorage.getItem('token')}`},
         body:JSON.stringify({ message:text }),
       });
       if (!res.ok) throw new Error();
@@ -1112,7 +1112,7 @@ function DiscoveryTab({ userName, setActiveTab }) {
     formData.append('desiredDomain', domainSnapshot);
     try {
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/resume/analyze`, formData, {
-        headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` },
+        headers:{ Authorization:`Bearer ${sessionStorage.getItem('token')}` },
       });
       const data = res.data.data;
       data._desiredDomain = domainSnapshot;
@@ -1292,7 +1292,7 @@ function AtsTab() {
     formData.append('desiredDomain', '');
     try {
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/resume/analyze`, formData, {
-        headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` },
+        headers:{ Authorization:`Bearer ${sessionStorage.getItem('token')}` },
       });
       setResult(res.data.data);
       toast('ATS scan complete!', 'success');
@@ -1423,7 +1423,7 @@ function JobsTab() {
 
   useEffect(() => {
     axios.get(`${import.meta.env.VITE_API_URL}/api/jobs/matches`, {
-      headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` },
+      headers:{ Authorization:`Bearer ${sessionStorage.getItem('token')}` },
     }).then(res => setJobs(res.data.data)).finally(() => setLoading(false));
   }, []);
 
@@ -1436,7 +1436,7 @@ function JobsTab() {
     formData.append('jobId', selectedJob._id || selectedJob.id);
     formData.append('recruiterId', selectedJob.recruiterId);
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/applications/apply`, formData, { headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` }});
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/applications/apply`, formData, { headers:{ Authorization:`Bearer ${sessionStorage.getItem('token')}` }});
       toast('Application submitted successfully! 🎉', 'success');
       setSelectedJob(null); setResumeFile(null);
     } catch { toast('Failed to submit application.', 'error'); }
@@ -1445,7 +1445,7 @@ function JobsTab() {
 
   const handleStartChat = async job => {
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/chat/send`, { receiverId:job.recruiterId, text:`Hi! I am very interested in your ${job.title} position and would love to connect.` }, { headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` }});
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/chat/send`, { receiverId:job.recruiterId, text:`Hi! I am very interested in your ${job.title} position and would love to connect.` }, { headers:{ Authorization:`Bearer ${sessionStorage.getItem('token')}` }});
       toast('Message sent! Go to Messages tab to view the conversation.', 'info');
       setSelectedJob(null);
     } catch { toast('Failed to send message.', 'error'); }
@@ -1576,7 +1576,7 @@ function HistoryTab({ searchQuery }) {
   const [history, setHistory] = useState([]);
 
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_API_URL}/api/resume/history`, { headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` }})
+    axios.get(`${import.meta.env.VITE_API_URL}/api/resume/history`, { headers:{ Authorization:`Bearer ${sessionStorage.getItem('token')}` }})
       .then(res => setHistory(res.data.data));
   }, []);
 
@@ -1715,7 +1715,7 @@ function RecruiterTab() {
 
   const fetchMyJobs = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/jobs/recruiter`, { headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` }});
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/jobs/recruiter`, { headers:{ Authorization:`Bearer ${sessionStorage.getItem('token')}` }});
       setJobs(res.data.data);
     } catch {} finally { setFetchingJobs(false); }
   };
@@ -1733,7 +1733,7 @@ function RecruiterTab() {
   const handleDelete = async id => {
     if (!window.confirm('Delete this job posting?')) return;
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/jobs/${id}`, { headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` }});
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/jobs/${id}`, { headers:{ Authorization:`Bearer ${sessionStorage.getItem('token')}` }});
       toast('Job posting deleted.', 'info');
       fetchMyJobs();
     } catch { toast('Failed to delete.', 'error'); }
@@ -1743,10 +1743,10 @@ function RecruiterTab() {
     e.preventDefault(); setLoading(true);
     try {
       if (editingId) {
-        await axios.put(`${import.meta.env.VITE_API_URL}/api/jobs/${editingId}`, formData, { headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` }});
+        await axios.put(`${import.meta.env.VITE_API_URL}/api/jobs/${editingId}`, formData, { headers:{ Authorization:`Bearer ${sessionStorage.getItem('token')}` }});
         toast('Job posting updated!', 'success');
       } else {
-        await axios.post(`${import.meta.env.VITE_API_URL}/api/jobs/post`, formData, { headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` }});
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/jobs/post`, formData, { headers:{ Authorization:`Bearer ${sessionStorage.getItem('token')}` }});
         toast('Job posted successfully! 🎉', 'success');
       }
       setShowForm(false); setEditingId(null); fetchMyJobs();
@@ -1757,7 +1757,7 @@ function RecruiterTab() {
   const handleViewApplicants = async jobId => {
     setViewingApplicants(jobId);
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/applications/recruiter/${jobId}`, { headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` }});
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/applications/recruiter/${jobId}`, { headers:{ Authorization:`Bearer ${sessionStorage.getItem('token')}` }});
       setApplicantsList(res.data.data);
     } catch { toast('Failed to load applicants.', 'error'); }
   };
@@ -1879,7 +1879,7 @@ function MessagesTab() {
   const endRef = useRef(null);
 
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_API_URL}/api/chat/inbox`, { headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` }})
+    axios.get(`${import.meta.env.VITE_API_URL}/api/chat/inbox`, { headers:{ Authorization:`Bearer ${sessionStorage.getItem('token')}` }})
       .then(res => setConversations(res.data.data));
   }, []);
 
@@ -1887,7 +1887,7 @@ function MessagesTab() {
     let interval;
     if (activeChat) {
       const fetchChat = () => {
-        axios.get(`${import.meta.env.VITE_API_URL}/api/chat/${activeChat._id}`, { headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` }})
+        axios.get(`${import.meta.env.VITE_API_URL}/api/chat/${activeChat._id}`, { headers:{ Authorization:`Bearer ${sessionStorage.getItem('token')}` }})
           .then(res => setMessages(res.data.data));
       };
       fetchChat(); interval = setInterval(fetchChat, 3000);
@@ -1901,9 +1901,9 @@ function MessagesTab() {
     e.preventDefault();
     if (!newMessage.trim() || !activeChat) return;
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/chat/send`, { receiverId:activeChat._id, text:newMessage }, { headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` }});
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/chat/send`, { receiverId:activeChat._id, text:newMessage }, { headers:{ Authorization:`Bearer ${sessionStorage.getItem('token')}` }});
       setNewMessage('');
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/chat/${activeChat._id}`, { headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` }});
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/chat/${activeChat._id}`, { headers:{ Authorization:`Bearer ${sessionStorage.getItem('token')}` }});
       setMessages(res.data.data);
     } catch { toast('Failed to send message.', 'error'); }
   };
@@ -1997,7 +1997,7 @@ function InterviewTab() {
     formData.append('resume', file);
     try {
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/resume/interview`, formData, {
-        headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` },
+        headers:{ Authorization:`Bearer ${sessionStorage.getItem('token')}` },
       });
       setQuestions(res.data.data);
       toast(`Generated ${res.data.data?.length || ''} interview questions!`, 'success');

@@ -8,7 +8,7 @@ import AdminPanel from './AdminPanel';
 // --- THE ROUTE GUARD ---
 // This acts as a bouncer. If there is no token, it instantly kicks the user back to the login screen.
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   
   if (!token) {
     return <Navigate to="/" replace />;

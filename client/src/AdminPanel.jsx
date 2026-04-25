@@ -140,10 +140,10 @@ function AdminPanel() {
   const [roleFilter, setRoleFilter] = useState('all');
 
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
 
   const handleLogout = () => {
-    localStorage.clear(); 
+    sessionStorage.clear(); 
     navigate('/');        
   };
 
@@ -151,7 +151,7 @@ function AdminPanel() {
     let timeoutId;
     const logoutIdleUser = () => {
       alert("Admin session expired due to inactivity.");
-      localStorage.clear();
+      sessionStorage.clear();
       navigate('/');
     };
     const resetTimer = () => {
