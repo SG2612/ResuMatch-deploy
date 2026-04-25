@@ -794,11 +794,44 @@ const DASH_STYLES = `
   .dark-mode .toast-success { background:linear-gradient(135deg,#052e16,#14532d) !important; border-color:#166534 !important; color:#86efac !important; }
   .dark-mode .toast-error   { background:linear-gradient(135deg,#450a0a,#7f1d1d) !important; border-color:#991b1b !important; color:#fca5a5 !important; }
   .dark-mode .toast-info    { background:linear-gradient(135deg,#0c1a2e,#1e3a5f) !important; border-color:#1e40af !important; color:#93c5fd !important; }
+
+  /* ── RESPONSIVE MOBILE FIX ── */
+  .mobile-menu-btn {
+    display: none; align-items: center; justify-content: center;
+    background: none; border: none; color: var(--slate-700);
+    cursor: pointer; padding: 8px; margin-right: 12px;
+  }
+  .dark-mode .mobile-menu-btn { color: #f8fafc; }
+  
+  .mobile-overlay {
+    display: none; position: fixed; inset: 0; 
+    background: rgba(15,23,42,0.6); z-index: 99998;
+    backdrop-filter: blur(4px);
+  }
+
+  @media (max-width: 768px) {
+    .dash-sidebar { 
+      position: fixed; top: 0; bottom: 0; left: -280px; 
+      z-index: 99999; transition: left 0.3s ease;
+    }
+    .dash-sidebar.mobile-open { left: 0; box-shadow: 4px 0 24px rgba(0,0,0,0.3); }
+    .mobile-menu-btn { display: flex; }
+    .mobile-overlay.mobile-open { display: block; }
+    
+    .dash-header { padding: 0 16px; }
+    .dash-content { padding: 24px 16px; }
+    .dash-search input { width: 130px; } /* Shrink search slightly on mobile */
+    .page-heading { font-size: 1.4rem; }
+    
+    /* Ensure layout stacks properly on tiny screens */
+    .jobs-layout, .messages-layout { flex-direction: column; height: auto; }
+  }
 `;
 
 /* ─── MAIN DASHBOARD ─────────────────────────── */
 function Dashboard() {
   const [activeTab, setActiveTab] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [userName, setUserName] = useState('');
   const [userRole, setUserRole] = useState('seeker');
   const [userEmail, setUserEmail] = useState('');
@@ -862,9 +895,12 @@ function Dashboard() {
     <ToastProvider>
       <div className="dash-layout">
         <style>{DASH_STYLES}</style>
-
+        <div 
+          className={`mobile-overlay ${isMobileMenuOpen ? 'mobile-open' : ''}`} 
+          onClick={() => setIsMobileMenuOpen(false)} 
+        />
         {/* ── SIDEBAR ── */}
-        <aside className="dash-sidebar">
+        <aside className={`dash-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
           <div className="dash-sidebar-logo">
             <div className="dash-logo-icon">🔍</div>
             <span className="dash-logo-text">ResuMatch</span>
@@ -878,7 +914,10 @@ function Dashboard() {
                 key={item.id}
                 className={`dash-nav-btn ${activeTab === item.id ? 'active' : ''}`}
                 style={{ animationDelay:`${i*0.04}s` }}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => {
+                  setActiveTab(item.id);
+                setIsMobileMenuOpen(false);
+                }}
               >
                 <span className="nav-icon">{item.icon}</span>
                 <span className="nav-text">{item.label}</span>
@@ -898,14 +937,21 @@ function Dashboard() {
         <div className="dash-main">
           {/* ── HEADER ── */}
           <header className="dash-header">
-            <div className="dash-search">
-              <Search size={16} color="var(--slate-400)" />
-              <input
-                type="text"
-                placeholder="Search insights..."
-                value={searchQuery}
-                onChange={e => { setSearchQuery(e.target.value); if (activeTab !== 'history' && e.target.value) setActiveTab('history'); }}
-              />
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {/* ── HAMBURGER BUTTON ── */}
+              <button className="mobile-menu-btn" onClick={() => setIsMobileMenuOpen(true)}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+              </button>
+              
+              <div className="dash-search">
+                <Search size={16} color="var(--slate-400)" />
+                <input
+                  type="text"
+                  placeholder="Search insights..."
+                  value={searchQuery}
+                  onChange={e => { setSearchQuery(e.target.value); if (activeTab !== 'history' && e.target.value) setActiveTab('history'); }}
+                />
+              </div>
             </div>
 
             <div className="dash-header-right">
