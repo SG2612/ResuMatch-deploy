@@ -23,7 +23,7 @@ An intelligent, full-stack recruitment and career progression platform built wit
 * **Database:** MongoDB Atlas, Mongoose
 * **AI Engine:** Groq API (LLaMA-3 70B Versatile model)
 * **Authentication:** JSON Web Tokens (JWT)
-* **Utilities:** Nodemailer (Emails), `pdf-text-reader` / `pdf-parse` (PDF extraction)
+* **Utilities:** Brevo API(emails), `pdf-text-reader` / `pdf-parse` (PDF extraction)
 * **Hosting:** Vercel (Frontend), Render (Backend)
 
 ## ⚙️ Environment Variables
@@ -35,5 +35,7 @@ PORT=5000
 MONGO_URI=your_mongodb_atlas_connection_string
 JWT_SECRET=your_super_secret_jwt_key
 GROQ_API_KEY=your_free_groq_api_key
-EMAIL_USER=your_gmail_address
-EMAIL_PASS=your_16_digit_google_app_password
+BREVO_API_KEY=your_brevo_api_key
+ADMIN_EMAIL=admin_emailid
+RAZORPAY_KEY_ID= razorpay_key_id
+RAZORPAY_KEY-SECRET= secret _key
